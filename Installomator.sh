@@ -347,7 +347,7 @@ if [[ $(/usr/bin/arch) == "arm64" ]]; then
         rosetta2=no
     fi
 fi
-VERSION="10.8"
+VERSION="10.8beta"
 VERSIONDATE="2025-03-28"
 
 # MARK: Functions
@@ -2915,13 +2915,21 @@ camtasia2024)
     downloadURL=$( <<<"$sparkleData" xpath 'string(//item[last()]/enclosure/@url)' )
     expectedTeamID="7TQL462TU8"
     ;;
-camtasia|\
 camtasia2025)
     name="Camtasia"
     type="dmg"
     sparkleData=$(curl -fsL 'https://sparkle.cloud.techsmith.com/api/v1/AppcastManifest/?version=25.0.0&utm_source=product&utm_medium=cmac&utm_campaign=cm25&ipc_item_name=cmac&ipc_platform=macos')
     appNewVersion=$( <<<"$sparkleData" xpath 'string(//item[last()]/sparkle:shortVersionString)' )
     downloadURL=$( <<<"$sparkleData" xpath 'string(//item[last()]/enclosure/@url)' )
+    expectedTeamID="7TQL462TU8"
+    ;;
+camtasia|\
+camtasia2026)
+    name="Camtasia"
+    type="dmg"
+    sparkleData=$(curl -H 'user-agent: Camtasia/2026.0.7 Sparkle/2.8.0' -fsL 'https://sparkle.cloud.techsmith.com/api/v1/AppcastManifest/?version=26.0.0&utm_source=product&utm_medium=cmac&utm_campaign=cm26&ipc_item_name=cmac&ipc_platform=macos')
+    appNewVersion=$( <<<"$sparkleData" xpath '//*[local-name()="shortVersionString"] [starts-with(.,"2026.")] /text()' | tr ' ' '\n' | sort -V | tail -n1)
+    downloadURL=$( <<<"$sparkleData" xpath 'string( //*[local-name()="item"] [./*[local-name()="shortVersionString"] = "'"$appNewVersion"'"] /*[local-name()="enclosure"]/@url)')
     expectedTeamID="7TQL462TU8"
     ;;
 camunda)
@@ -8630,8 +8638,8 @@ royaltsx)
 rstudio)
     name="RStudio"
     type="dmg"
-    downloadURL=$(curl -s -L "https://posit.co/download/rstudio-desktop/" | grep -m 1 -Eio 'href="https://download1.rstudio.org/electron/macos/RStudio-(.*).dmg"' | cut -c7- | sed -e 's/"$//')
-    appNewVersion=$( echo "${downloadURL}" | sed -E 's/.*\/[a-zA-Z]*-([0-9.-]*)\..*/\1/g' | sed 's/-/+/' )
+    downloadURL="https://rstudio.org/download/latest/stable/desktop/mac/RStudio-latest.dmg"
+    appNewVersion=$(curl -sfI "$downloadURL" | grep -i "^location" | grep -oE '[0-9]{4}\.[0-9]{2}\.[0-9]{1,2}\-[0-9]+' | sed 's/-/+/')
     expectedTeamID="FYF2F5GFX4"
     ;;
 rustdesk)
